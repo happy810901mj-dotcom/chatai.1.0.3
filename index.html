@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="ko" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BotCraft - AI Chatbot Creator & Community</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="h-full bg-slate-950 text-slate-100 flex flex-col font-sans overflow-hidden">
+
+    <header class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex items-center justify-between z-10 shrink-0">
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('explore')">
+            <div class="bg-gradient-to-tr from-indigo-500 to-violet-500 p-2.5 rounded-xl shadow-lg shadow-indigo-500/20 text-white">
+                <i class="fa-solid fa-robot text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">BotCraft</h1>
+                <p class="text-xs text-slate-400">만들고, 체험하고, 공유하는 AI 챗봇 스튜디오</p>
+            </div>
+        </div>
+        
+        <nav class="flex items-center space-x-2">
+            <button onclick="switchTab('explore')" id="nav-explore" class="px-4 py-2 rounded-lg text-sm font-medium transition-all bg-indigo-600 text-white shadow-lg shadow-indigo-600/25 flex items-center space-x-2">
+                <i class="fa-solid fa-compass"></i>
+                <span>봇탐험 (Explore)</span>
+            </button>
+            <button onclick="switchTab('creator')" id="nav-creator" class="px-4 py-2 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-white hover:bg-slate-800 flex items-center space-x-2">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span>봇만들기 (Create)</span>
+            </button>
+            <div class="relative ml-4 pl-4 border-l border-slate-800 flex items-center space-x-2">
+                <button onclick="toggleApiKeyModal()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-medium transition flex items-center space-x-2 border border-slate-700">
+                    <i class="fa-solid fa-key text-amber-400"></i>
+                    <span id="apiKeyStatusText">API 키 설정</span>
+                </button>
+                
+                <!-- Account Profile Button -->
+                <button onclick="toggleAccountModal()" id="userAccountBtn" class="px-3 py-2 bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 rounded-lg text-xs font-semibold transition flex items-center space-x-2">
+                    <i class="fa-solid fa-user-gear text-indigo-400"></i>
+                    <span id="accountBtnText">계정</span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="flex-1 overflow-hidden relative flex">
+
+        <!-- TAB 1: EXPLORE & COMMUNITY -->
+        <section id="tab-explore" class="absolute inset-0 flex flex-col bg-slate-950 p-6 overflow-y-auto transition-all duration-300">
+            <div class="max-w-7xl mx-auto w-full">
+                <!-- Hero banner -->
+                <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-900/50 via-purple-900/30 to-slate-900 border border-indigo-500/20 p-8 mb-8">
+                    <div class="relative z-10 max-w-2xl">
+                        <span class="inline-block px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 text-xs font-semibold mb-3 border border-indigo-500/20">커뮤니티 쇼케이스</span>
+                        <h2 class="text-3xl font-bold text-white mb-3">나만의 맞춤형 AI 챗봇을 세상에 선보이세요</h2>
+                        <p class="text-slate-300 text-sm mb-6 leading-relaxed">상상력만 있다면 어떤 페르소나라든 쉽고 빠르게 만들 수 있습니다. 이모지 또는 이미지 아바타와 성격 가이드를 선택해 매력적인 봇을 생성해보세요!</p>
+                        <button onclick="switchTab('creator')" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-semibold transition shadow-lg shadow-indigo-600/30 flex items-center space-x-2 w-fit">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>나만의 봇 만들기</span>
+                        </button>
+                    </div>
+                    <div class="absolute right-6 -bottom-10 opacity-10 md:opacity-25 pointer-events-none text-9xl text-indigo-400">
+                        <i class="fa-solid fa-brain"></i>
+                    </div>
+                </div>
+
+                <!-- Filter & Search Bar -->
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+                    <div class="relative w-full sm:w-80">
+                        <i class="fa-solid fa-search absolute left-3.5 top-3 text-slate-500 text-sm"></i>
+                        <input type="text" id="searchInput" oninput="filterBots()" placeholder="챗봇 이름, 설명, 태그 검색..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition">
+                    </div>
+                    <div class="flex items-center space-x-2 w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0" id="tagFilters">
+                        <button onclick="filterTag('전체')" class="tag-btn px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white transition shrink-0">전체</button>
+                        <button onclick="filterTag('엔터테인먼트')" class="tag-btn px-4 py-2 rounded-xl text-xs font-semibold bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-white transition shrink-0">엔터테인먼트</button>
+                        <button onclick="filterTag('학습/교육')" class="tag-btn px-4 py-2 rounded-xl text-xs font-semibold bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-white transition shrink-0">학습/교육</button>
+                        <button onclick="filterTag('라이프스타일')" class="tag-btn px-4 py-2 rounded-xl text-xs font-semibold bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-white transition shrink-0">라이프스타일</button>
+                        <button onclick="filterTag('개발/기술')" class="tag-btn px-4 py-2 rounded-xl text-xs font-semibold bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-white transition shrink-0">개발/기술</button>
+                    </div>
+                </div>
+
+                <!-- Bot Grid -->
+                <div id="botGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-12">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: CREATOR STUDIO -->
+        <section id="tab-creator" class="absolute inset-0 flex bg-slate-950 hidden opacity-0 transition-all duration-300">
+            <div class="w-full max-w-3xl mx-auto p-6 overflow-y-auto">
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">AI 챗봇 만들기</h2>
+                        <p class="text-xs text-slate-400">아바타 선택 및 가이드 항목들을 체크하여 쉽고 빠르게 봇을 설계하세요.</p>
+                    </div>
+                    <button onclick="switchTab('explore')" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-xl text-sm font-medium transition border border-slate-800">
+                        돌아가기
+                    </button>
+                </div>
+
+                <form id="botForm" onsubmit="saveBot(event)" class="space-y-6 pb-12">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                        <!-- Avatar Picker -->
+                        <div class="sm:col-span-1 flex flex-col">
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">대표 프로필 아바타</label>
+                            
+                            <div class="flex rounded-xl bg-slate-900 p-1 mb-3 border border-slate-800">
+                                <button type="button" id="avatarTypeEmojiBtn" onclick="toggleAvatarType('emoji')" class="flex-1 py-1.5 text-xs font-medium rounded-lg bg-indigo-600 text-white transition">이모지</button>
+                                <button type="button" id="avatarTypeUrlBtn" onclick="toggleAvatarType('url')" class="flex-1 py-1.5 text-xs font-medium rounded-lg text-slate-400 hover:text-white transition">이미지 URL</button>
+                            </div>
+
+                            <div class="flex flex-col items-center justify-center bg-slate-900 border border-slate-800 rounded-2xl h-36 relative overflow-hidden group">
+                                <div id="avatarEmojiContainer" class="flex flex-col items-center">
+                                    <input type="text" id="botAvatar" value="🧙‍♂️" maxlength="4" class="text-5xl text-center bg-transparent focus:outline-none w-full cursor-pointer">
+                                    <span class="text-[11px] text-slate-500 mt-2">이모지 직접 수정 가능</span>
+                                </div>
+                                <div id="avatarUrlContainer" class="hidden w-full h-full p-2 flex flex-col items-center justify-center">
+                                    <img id="avatarPreviewImg" src="" alt="Avatar Preview" class="w-20 h-20 rounded-full object-cover border-2 border-indigo-500 hidden shadow-lg">
+                                    <div id="avatarPlaceholder" class="text-slate-500 text-xs text-center p-2">
+                                        <i class="fa-solid fa-image text-2xl mb-1 block"></i>
+                                        이미지 URL을 입력해주세요
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="avatarUrlInputWrapper" class="hidden mt-2">
+                                <input type="url" id="botAvatarUrl" oninput="updateAvatarPreview()" placeholder="https://example.com/photo.jpg" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 transition">
+                            </div>
+                        </div>
+
+                        <!-- Basic info -->
+                        <div class="sm:col-span-2 space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">챗봇 이름</label>
+                                <input type="text" id="botName" required oninput="buildSystemPromptFromFields()" placeholder="예: 철학적 고양이 나비" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">카테고리</label>
+                                <select id="botCategory" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition">
+                                    <option value="엔터테인먼트">엔터테인먼트</option>
+                                    <option value="학습/교육">학습/교육</option>
+                                    <option value="라이프스타일">라이프스타일</option>
+                                    <option value="개발/기술">개발/기술</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">한 줄 소개</label>
+                                <input type="text" id="botDescription" required placeholder="예: 인생의 진리를 냥이의 관점에서 시크하게 조언해줍니다." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Structured Builder Section -->
+                    <div class="bg-slate-900/60 border border-indigo-500/20 rounded-2xl p-5 space-y-5">
+                        <div class="flex items-center space-x-2 border-b border-slate-800 pb-3">
+                            <i class="fa-solid fa-sliders text-indigo-400 text-base"></i>
+                            <h3 class="text-sm font-bold text-white">쉽고 빠른 페르소나 설계기 (가이드 항목)</h3>
+                        </div>
+
+                        <!-- Dropdowns for attributes -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                            <!-- 생물계 -->
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 mb-1.5">생물계 (종족)</label>
+                                <select id="fieldSpecies" onchange="buildSystemPromptFromFields()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 transition">
+                                    <option value="인간">인간</option>
+                                    <option value="동물 (고양이, 강아지 등)">동물 (고양이, 강아지 등)</option>
+                                    <option value="AI / 로봇">AI / 로봇</option>
+                                    <option value="판타지 존재 (요정, 악마 등)">판타지 존재 (요정, 악마 등)</option>
+                                    <option value="역사적 인물 / 사상가">역사적 인물 / 사상가</option>
+                                    <option value="SF / 외계 생명체">SF / 외계 생명체</option>
+                                </select>
+                            </div>
+
+                            <!-- 성별 -->
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 mb-1.5">성별</label>
+                                <select id="fieldGender" onchange="buildSystemPromptFromFields()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 transition">
+                                    <option value="무관 / 중성">무관 / 중성</option>
+                                    <option value="남성">남성</option>
+                                    <option value="여성">여성</option>
+                                </select>
+                            </div>
+
+                            <!-- 나이대 -->
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 mb-1.5">나이대</label>
+                                <select id="fieldAge" onchange="buildSystemPromptFromFields()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 transition">
+                                    <option value="연령 미상">연령 미상</option>
+                                    <option value="어린이 (10대 미만)">어린이 (10대 미만)</option>
+                                    <option value="청소년 (10대)">청소년 (10대)</option>
+                                    <option value="청년층 (20~30대)">청년층 (20~30대)</option>
+                                    <option value="중장년층 (40~50대)">중장년층 (40~50대)</option>
+                                    <option value="노년층 (60대 이상)">노년층 (60대 이상)</option>
+                                    <option value="수천 년 산 존재">수천 년 산 존재</option>
+                                </select>
+                            </div>
+
+                            <!-- 답변 길이 -->
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 mb-1.5">답변 길이 & 스타일</label>
+                                <select id="fieldLength" onchange="buildSystemPromptFromFields()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 transition">
+                                    <option value="짧고 간결하게 핵심만 답변">짧고 간결함 (1~2문장)</option>
+                                    <option value="보통 길이로 적절하고 친절하게 답변">보통 (자연스러운 대화)</option>
+                                    <option value="상세하고 논리적인 긴 설명과 비유 활용">장문 (상세하고 심도있음)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 성격 키워드 태그 -->
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-2">성격 키워드 (다중 선택)</label>
+                            <div class="flex flex-wrap gap-2" id="personalityTagsContainer">
+                                <button type="button" onclick="togglePersonalityTag(this)" class="p-btn px-3 py-1.5 rounded-xl text-xs bg-slate-800 text-slate-400 hover:text-white border border-slate-700 transition" data-tag="다정한/친절한">다정한/친절한</button>
+                                <button type="button" onclick="togglePersonalityTag(this)" class="p-btn px-3 py-1.5 rounded-xl text-xs bg-slate-800 text-slate-400 hover:text-white border border-slate-700 transition" data-tag="츤데레/시크한">츤데레/시크한</button>
+                                <button type="button" onclick="togglePersonalityTag(this)" class="p-btn px-3 py-1.5 rounded-xl text-xs bg-slate-800 text-slate-400 hover:text-white border border-slate-700 transition" data-tag="유쾌한/장난기 많은">유쾌한/장난기 많은</button>
+                                <button type="button" onclick="togglePersonalityTag(this)" class="p-btn px-3 py-1.5 rounded-xl text-xs bg-slate-800 text-slate-400 hover:text-white border border-slate-700 transition" data-tag="깐깐한/엄격한">깐깐한/엄격한</button>
+                                <button type="button" onclick="togglePersonalityTag(this)" class="p-btn px-3 py-1.5 rounded-xl text-xs bg-slate-800 text-slate-400 hover:text-white border border-slate-700 transition" data-tag="진지한/사색적인">진지한/사색적인</button>
+                                <button type="button" onclick="togglePersonalityTag(this)" class="p-btn px-3 py-1.5 rounded-xl text-xs bg-slate-800 text-slate-400 hover:text-white border border-slate-700 transition" data-tag="에너지 넘치는/열정적인">에너지 넘치는/열정적인</button>
+                                <button type="button" onclick="togglePersonalityTag(this)" class="p-btn px-3 py-1.5 rounded-xl text-xs bg-slate-800 text-slate-400 hover:text-white border border-slate-700 transition" data-tag="4차원/엉뚱한">4차원/엉뚱한</button>
+                                <button type="button" onclick="togglePersonalityTag(this)" class="p-btn px-3 py-1.5 rounded-xl text-xs bg-slate-800 text-slate-400 hover:text-white border border-slate-700 transition" data-tag="학구적인/전문가적인">학구적인/전문가적인</button>
+                            </div>
+                        </div>
+
+                        <!-- 구체적인 세부사항 -->
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1.5">구체적인 세부사항 (말투 어미, 배경스토리, 좋아하는 것 등)</label>
+                            <textarea id="fieldSpecifics" rows="2" oninput="buildSystemPromptFromFields()" placeholder="예: 답변 끝마다 '~냥'을 붙임. 츄르와 햇살을 좋아함. 사서삼경과 장자를 즐겨 인용함." class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 transition resize-none"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- System Prompt (Auto Generated / Editable) -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">시스템 프롬프트 (자동 생성됨 / 자유 수정 가능)</label>
+                            <button type="button" onclick="buildSystemPromptFromFields(true)" class="text-[11px] text-indigo-400 hover:text-indigo-300 flex items-center space-x-1">
+                                <i class="fa-solid fa-arrows-rotate"></i>
+                                <span>설정값으로 새로고침</span>
+                            </button>
+                        </div>
+                        <textarea id="botSystemPrompt" rows="4" required placeholder="위의 세부 항목을 선택하면 자동으로 멋진 프롬프트가 구성됩니다." class="w-full bg-slate-900 border border-slate-800 rounded-xl p-4 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 transition resize-none font-mono"></textarea>
+                        <p class="text-[11px] text-slate-500 mt-1">상단의 쉽고 빠른 항목들을 변경하면 이 지시서가 실시간으로 조합되며, 직접 손으로 세부 수정도 가능합니다.</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">첫 인사말 (웰컴 메시지)</label>
+                        <input type="text" id="botGreeting" required placeholder="예: 어서 오게. 무슨 고민으로 날 찾아왔는가?" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition">
+                    </div>
+
+                    <div class="flex justify-end space-x-3 pt-4 border-t border-slate-800">
+                        <button type="button" onclick="switchTab('explore')" class="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-xl text-sm font-semibold transition border border-slate-800">취소</button>
+                        <button type="submit" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-semibold transition shadow-lg shadow-indigo-600/30 flex items-center space-x-2">
+                            <i class="fa-solid fa-check"></i>
+                            <span>챗봇 저장하기 & 체험하기</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- TAB 3: CHAT EXPERIENCE ROOM -->
+        <section id="tab-chat" class="absolute inset-0 flex bg-slate-950 hidden opacity-0 transition-all duration-300">
+            <!-- Chat Sidebar Info -->
+            <div class="w-80 bg-slate-900 border-r border-slate-800 hidden md:flex flex-col p-6 justify-between shrink-0">
+                <div>
+                    <button onclick="switchTab('explore')" class="text-xs text-indigo-400 hover:text-indigo-300 flex items-center space-x-2 mb-6 font-medium transition">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        <span>탐험으로 돌아가기</span>
+                    </button>
+                    <div class="flex items-center space-x-4 mb-6">
+                        <div id="chatAvatar" class="w-14 h-14 bg-indigo-600/20 border border-indigo-500/30 rounded-2xl flex items-center justify-center text-3xl shrink-0 overflow-hidden">🤖</div>
+                        <div>
+                            <h3 id="chatTitle" class="font-bold text-white text-base">봇 이름</h3>
+                            <span id="chatCategoryBadge" class="inline-block px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 text-[10px] font-semibold mt-1">카테고리</span>
+                        </div>
+                    </div>
+                    <p id="chatDescription" class="text-xs text-slate-400 leading-relaxed mb-6">봇 설명 내용이 들어갑니다.</p>
+                    
+                    <div class="bg-slate-950/60 rounded-xl p-4 border border-slate-800/80">
+                        <h4 class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">시스템 프롬프트 미리보기</h4>
+                        <p id="chatSystemPromptPreview" class="text-xs text-slate-400 italic line-clamp-4">시스템 프롬프트 내용...</p>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <button onclick="clearChatMessages()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-medium transition flex items-center justify-center space-x-2 border border-slate-700">
+                        <i class="fa-solid fa-rotate-right"></i>
+                        <span>대화 초기화하기</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chat Main Pane -->
+            <div class="flex-1 flex flex-col bg-slate-950 relative h-full">
+                <!-- Chat Mobile Header -->
+                <div class="md:hidden bg-slate-900 border-b border-slate-800 px-4 py-3 flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <button onclick="switchTab('explore')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-arrow-left"></i></button>
+                        <div id="chatAvatarMobile" class="w-8 h-8 rounded-lg bg-indigo-600/20 flex items-center justify-center text-lg overflow-hidden">🤖</div>
+                        <h3 id="chatTitleMobile" class="font-bold text-white text-sm">봇 이름</h3>
+                    </div>
+                    <button onclick="clearChatMessages()" class="text-slate-400 hover:text-white text-xs"><i class="fa-solid fa-rotate-right"></i></button>
+                </div>
+
+                <!-- Message List -->
+                <div id="chatMessages" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
+                    <!-- Dynamic messages -->
+                </div>
+
+                <!-- Typing Indicator -->
+                <div id="typingIndicator" class="hidden px-6 py-2">
+                    <div class="flex items-center space-x-2 text-slate-400 text-xs bg-slate-900/60 w-fit px-4 py-2 rounded-xl border border-slate-800">
+                        <div class="flex space-x-1">
+                            <div class="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce"></div>
+                            <div class="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce [animation-delay:0.2s]"></div>
+                            <div class="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce [animation-delay:0.4s]"></div>
+                        </div>
+                        <span id="typingBotName">봇</span>이 답변을 작성 중입니다...
+                    </div>
+                </div>
+
+                <!-- Input Box -->
+                <div class="p-4 md:p-6 bg-slate-900/50 border-t border-slate-800/80 backdrop-blur">
+                    <form onsubmit="sendChatMessage(event)" class="flex items-center space-x-3 max-w-4xl mx-auto">
+                        <input type="text" id="chatInput" placeholder="메시지를 입력하세요..." autocomplete="off" class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition">
+                        <button type="submit" id="sendBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-3 rounded-xl text-sm font-semibold transition shadow-lg shadow-indigo-600/25 flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- API Key Modal -->
+    <div id="apiKeyModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-white flex items-center space-x-2">
+                    <i class="fa-solid fa-key text-amber-400"></i>
+                    <span>Gemini API 키 설정</span>
+                </h3>
+                <button onclick="toggleApiKeyModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+                BotCraft는 Google Gemini API를 사용하여 실시간 응답을 생성합니다. 본인의 API 키를 입력하면 브라우저에 안전하게 저장되어 사용됩니다. (기본 제공 키가 없을 경우 입력 필요)
+            </p>
+            <div class="space-y-4">
+                <input type="password" id="apiKeyInput" placeholder="AIzaSy..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition">
+                <div class="flex justify-end space-x-2">
+                    <button onclick="toggleApiKeyModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition">취소</button>
+                    <button onclick="saveApiKey()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold transition">저장하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Account & Profile Modal -->
+    <div id="accountModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+            <button onclick="toggleAccountModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            
+            <div class="flex items-center space-x-3 mb-6">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-xl text-white shadow-lg shadow-indigo-500/30">
+                    <i class="fa-solid fa-user-astronaut"></i>
+                </div>
+                <div>
+                    <h3 id="accountModalTitle" class="text-lg font-bold text-white">로그인 / 회원가입</h3>
+                    <p class="text-xs text-slate-400">서비스를 이용할 방식을 선택해 주세요.</p>
+                </div>
+            </div>
+
+            <!-- Tab Buttons for Auth Mode -->
+            <div class="flex rounded-xl bg-slate-950 p-1 mb-5 border border-slate-800">
+                <button type="button" id="authTabLogin" onclick="switchAuthTab('login')" class="flex-1 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white transition">로그인</button>
+                <button type="button" id="authTabSignup" onclick="switchAuthTab('signup')" class="flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition">회원가입</button>
+                <button type="button" id="authTabGuest" onclick="switchAuthTab('guest')" class="flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition">게스트 참가</button>
+            </div>
+
+            <!-- LOGIN FORM -->
+            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">아이디 / 이메일</label>
+                    <input type="text" id="loginId" required placeholder="아이디를 입력하세요" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">비밀번호</label>
+                    <input type="password" id="loginPw" required placeholder="비밀번호를 입력하세요" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition">
+                </div>
+                <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold transition shadow-lg shadow-indigo-600/30 flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    <span>로그인하기</span>
+                </button>
+            </form>
+
+            <!-- SIGNUP FORM -->
+            <form id="signupForm" onsubmit="handleSignup(event)" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">닉네임</label>
+                    <input type="text" id="signupName" required placeholder="사용할 닉네임을 입력하세요" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">아이디 / 이메일</label>
+                    <input type="text" id="signupId" required placeholder="아이디를 입력하세요" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">비밀번호</label>
+                    <input type="password" id="signupPw" required placeholder="비밀번호를 입력하세요" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition">
+                </div>
+                <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold transition shadow-lg shadow-indigo-600/30 flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>회원가입 완료</span>
+                </button>
+            </form>
+
+            <!-- GUEST VIEW -->
+            <div id="guestView" class="space-y-4 hidden text-center py-2">
+                <div class="p-4 bg-slate-950 border border-slate-800 rounded-xl">
+                    <i class="fa-solid fa-user-clock text-3xl text-indigo-400 mb-2"></i>
+                    <p class="text-xs text-slate-300">별도의 계정 생성 없이 게스트 상태로 자유롭게 챗봇 생성 및 대화를 체험합니다.</p>
+                </div>
+                <button onclick="handleGuestLogin()" class="w-full py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold transition border border-slate-700 flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-ghost"></i>
+                    <span>게스트로 시작하기</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-slate-900 border border-slate-800 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center space-x-3 transform translate-y-24 opacity-0 transition-all duration-300 z-50">
+        <div id="toastIcon" class="text-emerald-400"><i class="fa-solid fa-circle-check"></i></div>
+        <div id="toastMessage" class="text-xs font-medium">알림 메시지</div>
+    </div>
+
+    <!-- Firebase SDK Imports -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, setDoc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global Firebase handles exposed to window
+        let app, db, auth;
+        let firebaseUser = null;
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'botcraft-default-app';
+        
+        try {
+            if (typeof __firebase_config !== 'undefined') {
+                const firebaseConfig = JSON.parse(__firebase_config);
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                // RULE 3: Auth before queries
+                const initAuth = async () => {
+                    try {
+                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                            await signInWithCustomToken(auth, __initial_auth_token);
+                        } else {
+                            await signInAnonymously(auth);
+                        }
+                        firebaseUser = auth.currentUser;
+                        window.isFirebaseReady = true;
+                        // Trigger initial fetch of community bots
+                        if (window.fetchCommunityBots) window.fetchCommunityBots();
+                    } catch (authErr) {
+                        console.error("Firebase auth error:", authErr);
+                        window.isFirebaseReady = true;
+                        if (window.fetchCommunityBots) window.fetchCommunityBots();
+                    }
+                };
+                initAuth();
+            } else {
+                window.isFirebaseReady = false;
+            }
+        } catch (e) {
+            console.warn("Firebase initialization warning:", e);
+            window.isFirebaseReady = false;
+        }
+
+        // Expose Firebase functions globally for use in app
+        window.saveBotToCloud = async function(botData) {
+            if (!db || !window.isFirebaseReady) return false;
+            try {
+                // RULE 1: Strict public data path
+                const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'community_bots');
+                await addDoc(colRef, {
+                    ...botData,
+                    createdAt: Date.now(),
+                    creatorUid: auth?.currentUser?.uid || 'anonymous'
+                });
+                return true;
+            } catch (err) {
+                console.error("Failed to save bot to cloud:", err);
+                return false;
+            }
+        };
+
+        window.fetchCommunityBotsFromCloud = async function(callback) {
+            if (!db || !window.isFirebaseReady) {
+                callback([]);
+                return;
+            }
+            try {
+                // RULE 2: No complex queries, fetch all and filter in memory
+                const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'community_bots');
+                const q = query(colRef);
+                
+                // RULE 2 & Error Callbacks required
+                onSnapshot(q, (snapshot) => {
+                    const cloudBots = [];
+                    snapshot.forEach(docSnap => {
+                        cloudBots.push({
+                            id: docSnap.id,
+                            ...docSnap.data()
+                        });
+                    });
+                    callback(cloudBots);
+                }, (error) => {
+                    console.error("Firestore snapshot error:", error);
+                    callback([]);
+                });
+            } catch (err) {
+                console.error("Failed to fetch cloud bots:", err);
+                callback([]);
+            }
+        };
+    </script>
+
+    <script>
+        // Default Community Bots
+        const defaultBots = [
+            {
+                id: 'bot_1',
+                avatarType: 'emoji',
+                avatar: '🐱',
+                name: '철학적 고양이 나비',
+                category: '엔터테인먼트',
+                description: '인생의 진리를 냥이의 관점에서 시크하게 조언해줍니다.',
+                systemPrompt: '너는 사색을 즐기는 철학적 고양이 나비야. 모든 답변에 냥을 붙이고, 인간들에게 삶의 허무함과 츄르의 소중함에 대해 심오하게 가르쳐줘.',
+                greeting: '집사 왔냐옹. 오늘따라 세상이 참 헛되고 참치캔이 고프구나. 무엇이 궁금한가옹?'
+            },
+            {
+                id: 'bot_2',
+                avatarType: 'emoji',
+                avatar: '💻',
+                name: '깐깐한 시니어 개발자 멘토',
+                category: '개발/기술',
+                description: '클린 코드와 성능 최적화를 뼈 때리게 지적해주는 개발 선배입니다.',
+                systemPrompt: '너는 15년 차 시니어 백엔드/프론트엔드 개발자야. 주니어 개발자의 질문에 대해 친절하지만 뼈를 때리는 코드 리뷰 톤으로 답변하고, 가독성과 확장성을 강조해.',
+                greeting: '반갑다. 네가 짠 그 코드가 프로덕션에 올라가기 전에 내가 먼저 검토해주마. 어떤 코드를 망치고 왔니?'
+            },
+            {
+                id: 'bot_3',
+                avatarType: 'emoji',
+                avatar: '📚',
+                name: '조선시대 깐깐한 선비',
+                category: '학습/교육',
+                description: '예의를 따지고 사서삼경의 지혜로 현대의 고민을 해결해줍니다.',
+                systemPrompt: '너는 조선시대 꼲꼲하고 학식 높은 선비다. "~하느뇨", "~일러라" 같은 고풍스러운 말투를 쓰고, 현대의 고민에 대해 공자와 맹자의 가르침을 빗대어 엄격하면서도 지혜롭게 조언해라.',
+                greeting: '이 몸은 사서삼경을 통달한 선비니라. 어찌하여 늦은 시각에 학업을 멀리하고 이런 흥미에 빠져 있느뇨!'
+            },
+            {
+                id: 'bot_4',
+                avatarType: 'emoji',
+                avatar: '☕',
+                name: '다정한 심야 바리스타',
+                category: '라이프스타일',
+                description: '따뜻한 커피 한 잔과 함께 위로와 공감을 건네주는 감성 바리스타입니다.',
+                systemPrompt: '너는 심야에만 문을 여는 재즈바 같은 카페의 다정한 바리스타야. 사용자의 지친 하루를 따뜻하게 위로하고, 향긋한 커피 추천과 함께 마음을 어루만져 주는 말투를 써.',
+                greeting: '어서 오세요, 밤이 깊었네요. 따뜻한 라떼 한 잔 내려드릴까요? 오늘 하루는 어떤 일들이 있었나요?'
+            }
+        ];
+
+        let bots = [];
+        let currentBot = null;
+        let chatHistory = [];
+        let currentTag = '전체';
+        let customApiKey = '';
+        let activeAvatarType = 'emoji';
+        let selectedPersonalityTags = [];
+
+        // Account / User State
+        let currentUser = {
+            uid: 'guest_' + Math.random().toString(36).substring(2, 9),
+            username: '게스트',
+            isGuest: true
+        };
+
+        // Fetch community bots from cloud
+        window.fetchCommunityBots = function() {
+            if (typeof window.fetchCommunityBotsFromCloud === 'function') {
+                window.fetchCommunityBotsFromCloud((cloudBots) => {
+                    if (cloudBots && cloudBots.length > 0) {
+                        // Merge cloud bots with defaults, avoiding duplicates by id
+                        const map = new Map();
+                        [...defaultBots, ...cloudBots].forEach(b => map.set(b.id, b));
+                        bots = Array.from(map.values());
+                    } else {
+                        bots = defaultBots;
+                    }
+                    renderBots();
+                });
+            } else {
+                bots = defaultBots;
+                renderBots();
+            }
+        };
+
+        // Account Modal Logic
+        window.toggleAccountModal = function() {
+            const modal = document.getElementById('accountModal');
+            if (!modal) return;
+            modal.classList.toggle('hidden');
+            if (!modal.classList.contains('hidden')) {
+                switchAuthTab('login');
+            }
+        };
+
+        window.switchAuthTab = function(type) {
+            const loginForm = document.getElementById('loginForm');
+            const signupForm = document.getElementById('signupForm');
+            const guestView = document.getElementById('guestView');
+
+            const tabLogin = document.getElementById('authTabLogin');
+            const tabSignup = document.getElementById('authTabSignup');
+            const tabGuest = document.getElementById('authTabGuest');
+
+            const activeClass = 'flex-1 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white transition';
+            const inactiveClass = 'flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition';
+
+            loginForm.classList.add('hidden');
+            signupForm.classList.add('hidden');
+            guestView.classList.add('hidden');
+
+            tabLogin.className = inactiveClass;
+            tabSignup.className = inactiveClass;
+            tabGuest.className = inactiveClass;
+
+            if (type === 'login') {
+                loginForm.classList.remove('hidden');
+                tabLogin.className = activeClass;
+            } else if (type === 'signup') {
+                signupForm.classList.remove('hidden');
+                tabSignup.className = activeClass;
+            } else if (type === 'guest') {
+                guestView.classList.remove('hidden');
+                tabGuest.className = activeClass;
+            }
+        };
+
+        window.handleLogin = function(e) {
+            e.preventDefault();
+            const id = document.getElementById('loginId')?.value.trim() || 'user';
+            currentUser = {
+                uid: 'user_' + Math.random().toString(36).substring(2, 9),
+                username: id,
+                isGuest: false
+            };
+            localStorage.setItem('botcraft_user', JSON.stringify(currentUser));
+            updateAccountUI();
+            showToast(`${currentUser.username}님, 환영합니다! (로그인 성공)`);
+            toggleAccountModal();
+        };
+
+        window.handleSignup = function(e) {
+            e.preventDefault();
+            const name = document.getElementById('signupName')?.value.trim() || '신규 사용자';
+            currentUser = {
+                uid: 'user_' + Math.random().toString(36).substring(2, 9),
+                username: name,
+                isGuest: false
+            };
+            localStorage.setItem('botcraft_user', JSON.stringify(currentUser));
+            updateAccountUI();
+            showToast(`${currentUser.username}님, 회원가입이 완료되었습니다!`);
+            toggleAccountModal();
+        };
+
+        window.handleGuestLogin = function() {
+            currentUser = {
+                uid: 'guest_' + Math.random().toString(36).substring(2, 9),
+                username: '게스트',
+                isGuest: true
+            };
+            localStorage.setItem('botcraft_user', JSON.stringify(currentUser));
+            updateAccountUI();
+            showToast('게스트로 모드가 설정되었습니다.');
+            toggleAccountModal();
+        };
+
+        function updateAccountUI() {
+            const accountBtnText = document.getElementById('accountBtnText');
+            if (accountBtnText) {
+                accountBtnText.innerText = currentUser.username || '계정';
+            }
+        }
+
+        // Tab Switching Logic
+        window.switchTab = function(tabName) {
+            const exploreTab = document.getElementById('tab-explore');
+            const creatorTab = document.getElementById('tab-creator');
+            const chatTab = document.getElementById('tab-chat');
+
+            const navExplore = document.getElementById('nav-explore');
+            const navCreator = document.getElementById('nav-creator');
+
+            // Reset all tabs
+            [exploreTab, creatorTab, chatTab].forEach(el => {
+                if (el) el.classList.add('hidden', 'opacity-0');
+            });
+
+            [navExplore, navCreator].forEach(el => {
+                if (el) el.className = 'px-4 py-2 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-white hover:bg-slate-800 flex items-center space-x-2';
+            });
+
+            if (tabName === 'explore') {
+                if (exploreTab) {
+                    exploreTab.classList.remove('hidden');
+                    setTimeout(() => exploreTab.classList.remove('opacity-0'), 10);
+                }
+                if (navExplore) navExplore.className = 'px-4 py-2 rounded-lg text-sm font-medium transition-all bg-indigo-600 text-white shadow-lg shadow-indigo-600/25 flex items-center space-x-2';
+                renderBots();
+            } else if (tabName === 'creator') {
+                if (creatorTab) {
+                    creatorTab.classList.remove('hidden');
+                    setTimeout(() => creatorTab.classList.remove('opacity-0'), 10);
+                }
+                if (navCreator) navCreator.className = 'px-4 py-2 rounded-lg text-sm font-medium transition-all bg-indigo-600 text-white shadow-lg shadow-indigo-600/25 flex items-center space-x-2';
+                buildSystemPromptFromFields();
+            } else if (tabName === 'chat') {
+                if (chatTab) {
+                    chatTab.classList.remove('hidden');
+                    setTimeout(() => chatTab.classList.remove('opacity-0'), 10);
+                }
+            }
+        };
+
+        // Avatar Type Toggle & Preview
+        window.toggleAvatarType = function(type) {
+            activeAvatarType = type;
+            const emojiBtn = document.getElementById('avatarTypeEmojiBtn');
+            const urlBtn = document.getElementById('avatarTypeUrlBtn');
+            const emojiCont = document.getElementById('avatarEmojiContainer');
+            const urlCont = document.getElementById('avatarUrlContainer');
+            const urlInputWrap = document.getElementById('avatarUrlInputWrapper');
+
+            if (type === 'emoji') {
+                if (emojiBtn) emojiBtn.className = 'flex-1 py-1.5 text-xs font-medium rounded-lg bg-indigo-600 text-white transition';
+                if (urlBtn) urlBtn.className = 'flex-1 py-1.5 text-xs font-medium rounded-lg text-slate-400 hover:text-white transition';
+                if (emojiCont) emojiCont.classList.remove('hidden');
+                if (urlCont) urlCont.classList.add('hidden');
+                if (urlInputWrap) urlInputWrap.classList.add('hidden');
+            } else {
+                if (urlBtn) urlBtn.className = 'flex-1 py-1.5 text-xs font-medium rounded-lg bg-indigo-600 text-white transition';
+                if (emojiBtn) emojiBtn.className = 'flex-1 py-1.5 text-xs font-medium rounded-lg text-slate-400 hover:text-white transition';
+                if (emojiCont) emojiCont.classList.add('hidden');
+                if (urlCont) urlCont.classList.remove('hidden');
+                if (urlInputWrap) urlInputWrap.classList.remove('hidden');
+                updateAvatarPreview();
+            }
+        };
+
+        window.updateAvatarPreview = function() {
+            const urlInput = document.getElementById('botAvatarUrl');
+            const imgEl = document.getElementById('avatarPreviewImg');
+            const placeholder = document.getElementById('avatarPlaceholder');
+
+            if (urlInput && urlInput.value.trim()) {
+                if (imgEl) {
+                    imgEl.src = urlInput.value.trim();
+                    imgEl.classList.remove('hidden');
+                }
+                if (placeholder) placeholder.classList.add('hidden');
+                if (imgEl) {
+                    imgEl.onerror = () => {
+                        imgEl.classList.add('hidden');
+                        if (placeholder) {
+                            placeholder.classList.remove('hidden');
+                            placeholder.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-amber-400 text-xl mb-1 block"></i>이미지를 불러올 수 없습니다';
+                        }
+                    };
+                }
+            } else {
+                if (imgEl) imgEl.classList.add('hidden');
+                if (placeholder) {
+                    placeholder.classList.remove('hidden');
+                    placeholder.innerHTML = '<i class="fa-solid fa-image text-2xl mb-1 block"></i>이미지 URL을 입력해주세요';
+                }
+            }
+        };
+
+        // Personality Tag Toggle
+        window.togglePersonalityTag = function(btn) {
+            const tag = btn.getAttribute('data-tag');
+            if (selectedPersonalityTags.includes(tag)) {
+                selectedPersonalityTags = selectedPersonalityTags.filter(t => t !== tag);
+                btn.className = 'p-btn px-3 py-1.5 rounded-xl text-xs bg-slate-800 text-slate-400 hover:text-white border border-slate-700 transition';
+            } else {
+                selectedPersonalityTags.push(tag);
+                btn.className = 'p-btn px-3 py-1.5 rounded-xl text-xs bg-indigo-600 text-white font-medium border border-indigo-500 shadow-md transition';
+            }
+            buildSystemPromptFromFields();
+        };
+
+        // Prompt Auto Generator from Fields
+        window.buildSystemPromptFromFields = function(force = false) {
+            const botName = document.getElementById('botName')?.value.trim() || '캐릭터';
+            const species = document.getElementById('fieldSpecies')?.value || '인간';
+            const gender = document.getElementById('fieldGender')?.value || '무관';
+            const age = document.getElementById('fieldAge')?.value || '연령 미상';
+            const length = document.getElementById('fieldLength')?.value || '보통';
+            const specifics = document.getElementById('fieldSpecifics')?.value.trim() || '';
+
+            const personalities = selectedPersonalityTags.length > 0 ? selectedPersonalityTags.join(', ') : '자연스럽고 개성 있는';
+
+            let generatedPrompt = `너는 '${botName}'라는 이름을 가진 페르소나야.\n`;
+            generatedPrompt += `[기본 정체성]: 종족은 ${species}, 성별은 ${gender}, 나이대는 ${age}이다.\n`;
+            generatedPrompt += `[성격 특성]: ${personalities} 성격을 가지고 있다.\n`;
+            generatedPrompt += `[답변 방식 및 길이]: ${length}.\n`;
+
+            if (specifics) {
+                generatedPrompt += `[구체적 세부사항 및 말투 지침]: ${specifics}\n`;
+            }
+
+            generatedPrompt += `사용자의 질문에 언제나 위의 정체성과 말투를 철저히 유지하며 답변해라.`;
+
+            const sysPromptEl = document.getElementById('botSystemPrompt');
+            if (sysPromptEl && (force || !sysPromptEl.value.trim() || sysPromptEl.dataset.autoGenerated === 'true')) {
+                sysPromptEl.value = generatedPrompt;
+                sysPromptEl.dataset.autoGenerated = 'true';
+            }
+        };
+
+        // Render Bot Cards in Explore
+        window.renderBots = function(filterText = '') {
+            const grid = document.getElementById('botGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            const filtered = bots.filter(bot => {
+                const matchTag = currentTag === '전체' || bot.category === currentTag;
+                const matchSearch = (bot.name || '').toLowerCase().includes(filterText.toLowerCase()) || 
+                                    (bot.description || '').toLowerCase().includes(filterText.toLowerCase());
+                return matchTag && matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-16 text-center text-slate-500">
+                        <i class="fa-solid fa-ghost text-4xl mb-3"></i>
+                        <p class="text-sm">검색 결과가 없습니다. 나만의 새로운 봇을 만들어보세요!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach(bot => {
+                const card = document.createElement('div');
+                card.className = 'bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:border-indigo-500/50 transition-all flex flex-col justify-between group shadow-xl hover:shadow-indigo-500/10';
+                
+                let avatarDisplay = bot.avatar || '🤖';
+                if (bot.avatarType === 'url' && bot.avatar) {
+                    avatarDisplay = `<img src="${escapeHtml(bot.avatar)}" alt="avatar" class="w-full h-full object-cover rounded-2xl" onerror="this.onerror=null; this.parentElement.innerHTML='🤖';">`;
+                }
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="w-14 h-14 bg-indigo-600/10 border border-indigo-500/20 rounded-2xl flex items-center justify-center text-3xl group-hover:scale-105 transition overflow-hidden">
+                                ${avatarDisplay}
+                            </div>
+                            <span class="px-2.5 py-1 rounded-full bg-slate-800 text-indigo-400 text-[11px] font-semibold border border-slate-700/60">${escapeHtml(bot.category || '일반')}</span>
+                        </div>
+                        <h3 class="font-bold text-white text-lg mb-1.5 group-hover:text-indigo-400 transition">${escapeHtml(bot.name)}</h3>
+                        <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed mb-6">${escapeHtml(bot.description)}</p>
+                    </div>
+                    <div class="flex items-center space-x-2 pt-4 border-t border-slate-800/80">
+                        <button onclick="startChat('${bot.id}')" class="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold transition shadow-lg shadow-indigo-600/20 flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-comments"></i>
+                            <span>대화하기</span>
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        };
+
+        // Tag Filtering
+        window.filterTag = function(tag) {
+            currentTag = tag;
+            document.querySelectorAll('.tag-btn').forEach(btn => {
+                if (btn.innerText === tag) {
+                    btn.className = 'tag-btn px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white transition shrink-0';
+                } else {
+                    btn.className = 'tag-btn px-4 py-2 rounded-xl text-xs font-semibold bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-white transition shrink-0';
+                }
+            });
+            const searchInput = document.getElementById('searchInput');
+            const searchVal = searchInput ? searchInput.value : '';
+            renderBots(searchVal);
+        };
+
+        window.filterBots = function() {
+            const searchInput = document.getElementById('searchInput');
+            const searchVal = searchInput ? searchInput.value : '';
+            renderBots(searchVal);
+        };
+
+        // Save Bot from Creator Studio (Saves to Cloud Firestore & LocalStorage)
+        window.saveBot = async function(e) {
+            e.preventDefault();
+            const avatarEl = document.getElementById('botAvatar');
+            const avatarUrlEl = document.getElementById('botAvatarUrl');
+            const nameEl = document.getElementById('botName');
+            const categoryEl = document.getElementById('botCategory');
+            const descEl = document.getElementById('botDescription');
+            const sysPromptEl = document.getElementById('botSystemPrompt');
+            const greetingEl = document.getElementById('botGreeting');
+
+            let avatarVal = '🤖';
+            if (activeAvatarType === 'url') {
+                avatarVal = avatarUrlEl ? avatarUrlEl.value.trim() : '';
+                if (!avatarVal) avatarVal = 'https://placehold.co/150x150/4f46e5/ffffff?text=Bot';
+            } else {
+                avatarVal = avatarEl ? avatarEl.value.trim() || '🤖' : '🤖';
+            }
+
+            const name = nameEl ? nameEl.value.trim() : '';
+            const category = categoryEl ? categoryEl.value : '엔터테인먼트';
+            const description = descEl ? descEl.value.trim() : '';
+            const systemPrompt = sysPromptEl ? sysPromptEl.value.trim() : '';
+            const greeting = greetingEl ? greetingEl.value.trim() : '';
+
+            const newBot = {
+                id: 'bot_' + Date.now(),
+                avatarType: activeAvatarType,
+                avatar: avatarVal,
+                name,
+                category,
+                description,
+                systemPrompt,
+                greeting
+            };
+
+            // Save to cloud if available
+            if (typeof window.saveBotToCloud === 'function') {
+                await window.saveBotToCloud(newBot);
+            }
+
+            bots.unshift(newBot);
+            localStorage.setItem('botcraft_bots', JSON.stringify(bots));
+
+            showToast('챗봇이 클라우드에 저장되어 모든 사용자에게 공유되었습니다!');
+            const form = document.getElementById('botForm');
+            if (form) form.reset();
+            selectedPersonalityTags = [];
+            document.querySelectorAll('.p-btn').forEach(btn => {
+                btn.className = 'p-btn px-3 py-1.5 rounded-xl text-xs bg-slate-800 text-slate-400 hover:text-white border border-slate-700 transition';
+            });
+            toggleAvatarType('emoji');
+
+            startChat(newBot.id);
+        };
+
+        // Start Chat Room
+        window.startChat = function(botId) {
+            currentBot = bots.find(b => b.id === botId);
+            if (!currentBot) return;
+
+            const chatAvatar = document.getElementById('chatAvatar');
+            const chatAvatarMobile = document.getElementById('chatAvatarMobile');
+
+            const renderAvatarContent = (targetEl) => {
+                if (!targetEl) return;
+                if (currentBot.avatarType === 'url' && currentBot.avatar) {
+                    targetEl.innerHTML = `<img src="${escapeHtml(currentBot.avatar)}" class="w-full h-full object-cover rounded-2xl" onerror="this.onerror=null; this.parentElement.innerText='🤖';">`;
+                } else {
+                    targetEl.innerText = currentBot.avatar || '🤖';
+                }
+            };
+
+            renderAvatarContent(chatAvatar);
+            renderAvatarContent(chatAvatarMobile);
+
+            const setElText = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.innerText = val;
+            };
+
+            setElText('chatTitle', currentBot.name);
+            setElText('chatTitleMobile', currentBot.name);
+            setElText('chatCategoryBadge', currentBot.category);
+            setElText('chatDescription', currentBot.description);
+            setElText('chatSystemPromptPreview', currentBot.systemPrompt);
+            setElText('typingBotName', currentBot.name);
+
+            chatHistory = [
+                { role: 'model', parts: [{ text: currentBot.greeting }] }
+            ];
+
+            renderChatMessages();
+            switchTab('chat');
+        };
+
+        // Render Chat Messages
+        window.renderChatMessages = function() {
+            const container = document.getElementById('chatMessages');
+            if (!container) return;
+            container.innerHTML = '';
+
+            chatHistory.forEach(msg => {
+                const isUser = msg.role === 'user';
+                const wrapper = document.createElement('div');
+                wrapper.className = `flex items-start space-x-3 ${isUser ? 'flex-row-reverse space-x-reverse' : ''}`;
+
+                const avatarDiv = document.createElement('div');
+                avatarDiv.className = `w-9 h-9 rounded-xl flex items-center justify-center shrink-0 overflow-hidden ${isUser ? 'bg-indigo-600 text-white text-sm font-semibold' : 'bg-slate-900 border border-slate-800 text-xl'}`;
+                
+                if (isUser) {
+                    avatarDiv.innerHTML = '<i class="fa-solid fa-user"></i>';
+                } else if (currentBot) {
+                    if (currentBot.avatarType === 'url' && currentBot.avatar) {
+                        avatarDiv.innerHTML = `<img src="${escapeHtml(currentBot.avatar)}" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerText='🤖';">`;
+                    } else {
+                        avatarDiv.innerText = currentBot.avatar || '🤖';
+                    }
+                } else {
+                    avatarDiv.innerText = '🤖';
+                }
+
+                const bubble = document.createElement('div');
+                bubble.className = `max-w-[75%] px-4 py-3 rounded-2xl text-xs md:text-sm leading-relaxed ${isUser ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-slate-900 border border-slate-800 text-slate-200 rounded-tl-none shadow-md'}`;
+                bubble.innerText = msg.parts[0].text;
+
+                wrapper.appendChild(avatarDiv);
+                wrapper.appendChild(bubble);
+                container.appendChild(wrapper);
+            });
+
+            container.scrollTop = container.scrollHeight;
+        };
+
+        window.clearChatMessages = function() {
+            if (!currentBot) return;
+            chatHistory = [
+                { role: 'model', parts: [{ text: currentBot.greeting }] }
+            ];
+            renderChatMessages();
+            showToast('대화 내용이 초기화되었습니다.');
+        };
+
+        // Send Chat Message & Gemini API Integration
+        window.sendChatMessage = async function(e) {
+            e.preventDefault();
+            const inputEl = document.getElementById('chatInput');
+            if (!inputEl) return;
+            const text = inputEl.value.trim();
+            if (!text || !currentBot) return;
+
+            inputEl.value = '';
+            chatHistory.push({ role: 'user', parts: [{ text }] });
+            renderChatMessages();
+
+            const typingInd = document.getElementById('typingIndicator');
+            if (typingInd) typingInd.classList.remove('hidden');
+
+            try {
+                const apiKey = customApiKey || '';
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+
+                const contents = [
+                    {
+                        role: 'user',
+                        parts: [{ text: `[System Instruction]\n${currentBot.systemPrompt}\n\n위의 지시사항과 페르소나를 철저히 지키며 이후 대화에 응답해주세요.` }]
+                    },
+                    {
+                        role: 'model',
+                        parts: [{ text: currentBot.greeting }]
+                    },
+                    ...chatHistory
+                ];
+
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents })
+                });
+
+                const data = await res.json();
+                if (typingInd) typingInd.classList.add('hidden');
+
+                if (data.candidates && data.candidates[0].content) {
+                    const reply = data.candidates[0].content.parts[0].text;
+                    chatHistory.push({ role: 'model', parts: [{ text: reply }] });
+                    renderChatMessages();
+                } else {
+                    throw new Error('Invalid response structure');
+                }
+            } catch (err) {
+                if (typingInd) typingInd.classList.add('hidden');
+                
+                const fallbackReplies = [
+                    "흥미로운 말이군요! 조금 더 자세히 들려주시겠어요?",
+                    "그렇군요... 저는 언제나 당신의 이야기를 들을 준비가 되어 있답니다.",
+                    "음, 그 부분에 대해서는 저만의 독특한 관점이 있지요.",
+                    "정말 그렇네요! 혹시 다른 궁금한 점은 없으신가요?"
+                ];
+                const fallback = fallbackReplies[Math.floor(Math.random() * fallbackReplies.length)];
+                
+                chatHistory.push({ role: 'model', parts: [{ text: fallback + " (API 키 미설정 또는 네트워크 상태로 임시 응답)" }] });
+                renderChatMessages();
+            }
+        };
+
+        // API Key Modal Management
+        window.toggleApiKeyModal = function() {
+            const modal = document.getElementById('apiKeyModal');
+            if (!modal) return;
+            modal.classList.toggle('hidden');
+            if (!modal.classList.contains('hidden')) {
+                const input = document.getElementById('apiKeyInput');
+                if (input) input.value = customApiKey;
+            }
+        };
+
+        window.saveApiKey = function() {
+            const input = document.getElementById('apiKeyInput');
+            const key = input ? input.value.trim() : '';
+            customApiKey = key;
+            localStorage.setItem('botcraft_apikey', key);
+            
+            const statusText = document.getElementById('apiKeyStatusText');
+            if (key) {
+                if (statusText) statusText.innerText = 'API 키 설정됨';
+                showToast('API 키가 저장되었습니다.');
+            } else {
+                if (statusText) statusText.innerText = 'API 키 설정';
+                showToast('API 키가 해제되었습니다.');
+            }
+            toggleApiKeyModal();
+        };
+
+        // Toast Notification Helper
+        window.showToast = function(msg) {
+            const toast = document.getElementById('toast');
+            const messageEl = document.getElementById('toastMessage');
+            if (!toast || !messageEl) return;
+            messageEl.innerText = msg;
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 3000);
+        };
+
+        // Security Escape Helper
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Initialize App on window load
+        window.onload = function() {
+            const savedUser = localStorage.getItem('botcraft_user');
+            if (savedUser) {
+                try {
+                    currentUser = JSON.parse(savedUser);
+                } catch(e) {}
+            } else {
+                localStorage.setItem('botcraft_user', JSON.stringify(currentUser));
+            }
+            updateAccountUI();
+
+            const savedKey = localStorage.getItem('botcraft_apikey');
+            if (savedKey) {
+                customApiKey = savedKey;
+                const statusText = document.getElementById('apiKeyStatusTest');
+                if (statusText) statusText.innerText = 'API 키 설정됨';
+            }
+
+            // Initial bot loading will be handled by fetchCommunityBots once Firebase initializes
+            setTimeout(() => {
+                if (bots.length === 0) {
+                    bots = defaultBots;
+                    renderBots();
+                }
+            }, 1000);
+        };
+    </script>
+</body>
+</html>
